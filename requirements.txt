@@ -1,0 +1,7 @@
+streamlit
+requests
+python-dotenv
+Pillow
+streamlit-image-comparison
+numpy
+replicate
