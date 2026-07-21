@@ -304,22 +304,38 @@ section[data-testid="stSidebar"] .stButton > button {
 /* ── PAGE HEADERS ── */
 .page-header { margin-bottom: 40px; }
 .page-eyebrow {
-  font-family: var(--font-m); font-size: 10px; font-weight: 500;
+  font-family: var(--font-m); font-size: 10px; font-weight: 700;
   letter-spacing: 4px; text-transform: uppercase;
-  color: var(--txt3); margin-bottom: 12px; display: inline-block;
+  margin-bottom: 14px; display: inline-flex; align-items: center; gap: 9px;
+  background: linear-gradient(90deg, #00d4a8 0%, #7eecd8 45%, #f0a882 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.page-eyebrow::before {
+  content: ''; width: 16px; height: 1.5px; flex-shrink: 0; display: inline-block;
+  background: linear-gradient(90deg, #00d4a8, #f0a882);
+  box-shadow: 0 0 8px rgba(0,212,168,0.55);
 }
 .page-title {
   font-family: var(--font-d); font-size: 46px; font-weight: 800;
   color: var(--txt); line-height: 1.05; margin: 0 0 14px;
   letter-spacing: -1.5px;
+  filter: drop-shadow(0 4px 28px rgba(0,212,168,0.12));
 }
 .page-title .hl-teal {
-  background: linear-gradient(125deg, #00d4a8 0%, #7eecd8 50%, #00b88c 100%);
+  background: linear-gradient(125deg, #00d4a8 0%, #7eecd8 30%, #00b88c 55%, #7eecd8 80%, #00d4a8 100%);
+  background-size: 250% auto;
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: titleShimmer 8s ease-in-out infinite;
 }
 .page-title .hl-peach {
-  background: linear-gradient(125deg, #f0a882 0%, #fcc8a8 50%, #e08060 100%);
+  background: linear-gradient(125deg, #f0a882 0%, #fcc8a8 30%, #e08060 55%, #fcc8a8 80%, #f0a882 100%);
+  background-size: 250% auto;
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: titleShimmer 8s ease-in-out infinite;
+}
+@keyframes titleShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
 }
 .page-subtitle { font-size: 15px; color: var(--txt2); line-height: 1.65; max-width: 520px; font-weight: 300; }
 
@@ -412,6 +428,35 @@ section[data-testid="stSidebar"] .stButton > button {
 }
 .metric-label { font-size: 12.5px; font-weight: 400; }
 .metric-icon { position: absolute; top: 18px; right: 16px; font-size: 22px; opacity: 0.10; }
+
+/* ── METRIC CARD → PAGE NAV LINK (tap "Start creating"/"View" to jump) ── */
+.metric-cta-wrap { margin-top: -6px; margin-bottom: 4px; }
+.metric-cta-wrap div.stButton > button {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 2px 2px !important;
+  margin: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  color: rgba(160, 225, 210, 0.60) !important;
+  font-family: var(--font-m) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2px !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  backdrop-filter: none !important;
+  transform: none !important;
+  width: 100% !important;
+}
+.metric-cta-wrap div.stButton > button:hover {
+  color: #7eecd8 !important;
+  background: transparent !important;
+  transform: translateX(4px) !important;
+  box-shadow: none !important;
+}
+.metric-cta-wrap div.stButton > button p { text-align: left !important; }
 
 /* ── SECTION HEADERS ── */
 .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
@@ -1107,28 +1152,33 @@ if menu == "Dashboard":
     # ── Metric Cards ──
     c1, c2, c3, c4, c5 = st.columns(5)
     metrics = [
-        ("mc1", st.session_state.generated_count, "Generated",  "Images Created",  "🎨"),
-        ("mc2", st.session_state.enhanced_count,  "Enhanced",   "Images Enhanced", "✨"),
-        ("mc3", st.session_state.video_count,      "Videos",     "Videos Created",  "🎬"),
-        ("mc4", len(st.session_state.history),     "Gallery",    "Total Assets",    "🖼️"),
-        ("mc5", 4,                                 "Models",     "AI Engines",      "🧠"),
+        ("mc1", st.session_state.generated_count, "Generated",  "Images Created",  "🎨", "AI Generation"),
+        ("mc2", st.session_state.enhanced_count,  "Enhanced",   "Images Enhanced", "✨", "Enhance"),
+        ("mc3", st.session_state.video_count,      "Videos",     "Videos Created",  "🎬", "Text to Video"),
+        ("mc4", len(st.session_state.history),     "Gallery",    "Total Assets",    "🖼️", "History"),
+        ("mc5", 4,                                 "Models",     "AI Engines",      "🧠", None),
     ]
-    for col, (cls, val, tag, lbl, icon) in zip([c1, c2, c3, c4, c5], metrics):
+    for col, (cls, val, tag, lbl, icon, dest) in zip([c1, c2, c3, c4, c5], metrics):
         with col:
-            # IMPROVED: Show empty-state hint on zero values
             display_val = format_count(val)
-            hint = ""
-            if val == 0 and tag != "Models":
-                hint = f'<div class="img-placeholder-hint">Start creating →</div>'
             st.markdown(
                 f'<div class="metric-card {cls} fade-up">'
                 f'<div class="metric-tag">{tag}</div>'
                 f'<div class="metric-val">{display_val}</div>'
                 f'<div class="metric-label">{lbl}</div>'
-                f'{hint}'
                 f'<div class="metric-icon">{icon}</div></div>',
                 unsafe_allow_html=True
             )
+            # IMPROVED: the hint below the card is now a real, tappable link —
+            # jumps straight to the matching tool. Great for mobile where the
+            # sidebar nav is tucked away in a drawer.
+            if dest:
+                cta_label = "Start creating →" if val == 0 else "View →"
+                st.markdown('<div class="metric-cta-wrap">', unsafe_allow_html=True)
+                if st.button(cta_label, key=f"metric_nav_{cls}", use_container_width=True):
+                    st.session_state.selected_menu = dest
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
     # ── API Key Warning Banner ──
     if not stability_ok or not replicate_ok:
@@ -1922,6 +1972,6 @@ st.markdown("""
                  color:rgba(255,255,255,0.22);letter-spacing:2.5px;">
         IMAGINER STUDIO · v3.0 · PERSONAL PROJECT
     </span><br>
-    <span style="font-size:12px;color:rgba(255,255,255,0.18);">✉️ arijitbera@gmail.com</span>
+    <span style="font-size:12px;color:rgba(255,255,255,0.18);">✉️ arijitbera15aug@gmail.com</span>
 </div>
 """, unsafe_allow_html=True)
